@@ -1,5 +1,5 @@
 import { $ } from "./dom.js";
-import { hooks, runtime } from "./state.js";
+import { hooks, runtime, settings } from "./state.js";
 
 let currentUtterance = null; // browsers can garbage-collect a playing utterance and cut it off
 let speakTimer = null;
@@ -22,6 +22,19 @@ export function beep(frequency, seconds, volume = 0.2) {
   osc.stop(audio.currentTime + seconds);
 }
 
+// Punjabi in English letters is read far better by an Indian English voice than by a US one
+function wantedAccent() {
+  if (settings.voiceAccent !== "auto") return settings.voiceAccent;
+  return settings.language === "pa" ? "en-IN" : null;
+}
+
+// only a voice that is really installed; otherwise the device default, which is known to work
+function findVoice(accent) {
+  if (!accent) return null;
+  const same = (lang) => lang.replace("_", "-").toLowerCase() === accent.toLowerCase();
+  return (speechSynthesis.getVoices?.() ?? []).find((voice) => same(voice.lang) && voice.localService !== false) ?? null;
+}
+
 export function speakCue(text, rate = 1, volume = 1) {
   if (!("speechSynthesis" in window)) {
     $("status").textContent = "This browser cannot speak";
@@ -30,7 +43,9 @@ export function speakCue(text, rate = 1, volume = 1) {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.rate = rate;
   utterance.volume = volume;
-  utterance.lang = "en-US";
+  const voice = findVoice(wantedAccent());
+  utterance.lang = voice ? voice.lang : "en-US";
+  if (voice) utterance.voice = voice;
   utterance.onerror = (e) => {
     if (e.error !== "canceled" && e.error !== "interrupted") $("status").textContent = `Speech blocked: ${e.error}`;
   };

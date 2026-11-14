@@ -22,8 +22,9 @@ js/
   eyes.js             camera, face model, blink gestures (pick, go back, alarm), camera-fault alert
   board.js            what is on screen: scanning, row counting, rendering, typed text
   screens.js          the screens: home, chat, quick, needs, saved, keyboard layouts
-  words.js            word prediction that learns from what is typed
+  words.js            word prediction (English and Punjabi in English letters) that learns from what is typed
   alarm.js            siren, speech, start and stop
+  rest.js             pause and rest mode: wake and alarm by counted blinks
   notify.js           push alert to the carer's phone through ntfy (raise, remind, stop, retry)
   alerts-ui.js        the Phone alert tab: topic, server, test
   calibrate.js        calibration state machine (open, closed, three blinks)
@@ -43,7 +44,13 @@ Modules that would import each other call through `hooks` in `state.js`, which `
 | 2 s | go back one level |
 | 4 s | raise the alarm |
 
+While resting, long eye-closures mean nothing (eyes may stay shut for minutes): 3 deliberate blinks then a pause wake the board, 5 or more raise the alarm.
+
 Space is a manual blink and Escape goes back, for testing without the camera.
+
+## Punjabi
+
+The Punjabi tile on Home (or Settings, Phrase language) switches the Chat, Quick and Needs phrases and the keyboard's word suggestions to Punjabi written in English letters. Spellings are a best guess; edit them in `js/screens.js` and `js/words.js` to match how your family writes. The voice defaults to an Indian English voice in Punjabi mode, which reads these words better than a US voice. Whether the device has one depends on the device.
 
 ## Phone alert
 

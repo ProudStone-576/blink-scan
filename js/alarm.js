@@ -18,6 +18,7 @@ export function startAlarm(source, test = false) {
   ensureAudio();
   isTest = test;
   hooks.closePanel();
+  hooks.endRest(); // someone is calling for help, so the rest is over
   $("alarm-title").textContent = test ? "Alarm test" : "Help needed";
   $("alarm-detail").textContent = test ? "This is a test. Nothing is wrong." : `The patient called for help at ${timeNow()}.`;
   $("alarm").hidden = false;

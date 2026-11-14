@@ -27,6 +27,8 @@
   <symbol id="i-save" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></symbol>
   <symbol id="i-camera" viewBox="0 0 24 24"><path d="M3 8h4l2-3h6l2 3h4v11H3z"/><circle cx="12" cy="13" r="3.5"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></symbol>
   <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3 22 21H2zM12 10v5M12 18h.01"/></symbol>
 </svg>
 
@@ -44,6 +46,7 @@
     <button id="start" class="btn btn-primary" type="button">Start camera</button>
     <button id="calibrate" class="btn" type="button" hidden>Calibrate</button>
     <button id="open-carer" class="btn" type="button" aria-haspopup="dialog">Carer panel</button>
+    <button id="rest-btn" class="btn" type="button">Rest</button>
   </div>
   <button id="alarm-btn" class="btn btn-alarm" type="button"><svg class="icon" aria-hidden="true"><use href="#i-bell"/></svg>Alarm</button>
 </header>
@@ -54,6 +57,21 @@
   <p id="hint"></p>
   <div id="log" aria-label="Conversation so far"></div>
   <div id="grid" role="listbox" aria-label="Choices"></div>
+
+  <div id="rest" role="dialog" aria-labelledby="rest-title" aria-describedby="rest-detail" hidden>
+    <div class="rest-card">
+      <svg class="rest-icon" aria-hidden="true"><use href="#i-moon"/></svg>
+      <h1 id="rest-title">Resting</h1>
+      <p id="rest-detail">Scanning is paused. The alarm still works.</p>
+      <p id="rest-since" class="rest-since"></p>
+      <ul class="rest-how">
+        <li>Blink 3 times, then pause, to wake the board.</li>
+        <li>Blink 5 times, then pause, for the alarm.</li>
+      </ul>
+      <p id="rest-count" role="status"></p>
+      <button id="rest-resume" class="btn" type="button">Resume now</button>
+    </div>
+  </div>
 </main>
 
 <dialog id="carer" aria-labelledby="carer-title">
@@ -138,7 +156,34 @@
       </label>
     </fieldset>
     <fieldset>
+      <legend>Rest</legend>
+      <label>Rest automatically after no activity
+        <select id="autoRest">
+          <option value="0">Never</option>
+          <option value="5">5 minutes</option>
+          <option value="10">10 minutes</option>
+          <option value="15">15 minutes</option>
+          <option value="30">30 minutes</option>
+        </select>
+      </label>
+      <p class="fine">A warning shows for the last 30 seconds. One deliberate blink keeps the board awake. To wake it after it rests, blink 3 times, then pause.</p>
+    </fieldset>
+    <fieldset>
       <legend>Voice and display</legend>
+      <label>Phrase language
+        <select id="language">
+          <option value="en">English</option>
+          <option value="pa">Punjabi (English letters)</option>
+        </select>
+      </label>
+      <label>Voice accent
+        <select id="voiceAccent">
+          <option value="auto">Automatic (Indian English for Punjabi)</option>
+          <option value="en-IN">Indian English</option>
+          <option value="en-US">US English</option>
+          <option value="en-GB">UK English</option>
+        </select>
+      </label>
       <label>Speech speed <output id="out-rate"></output>
         <input id="rate" type="range" min="0.6" max="1.4" step="0.1">
       </label>

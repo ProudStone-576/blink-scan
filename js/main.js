@@ -4,6 +4,7 @@ import { activate, announce, goBack, initBoard, touchScan } from "./board.js";
 import { calibrator, initCalibration } from "./calibration-ui.js";
 import { closeCarer, initCarer, openCarer, panelOpen, renderReadiness, renderSetup } from "./carer.js";
 import { initEyes, resetClosure } from "./eyes.js";
+import { endRest, initRest, markActive } from "./rest.js";
 import { initRecords } from "./records.js";
 import { initSettings, syncSettings } from "./settings-ui.js";
 import { hooks } from "./state.js";
@@ -25,6 +26,7 @@ Object.assign(hooks, {
   settingsChanged: syncSettings,
   resetClosure,
   scanClock: touchScan,
+  endRest,
 });
 
 initSettings();
@@ -32,9 +34,12 @@ initBoard();
 initCalibration();
 initAlarm();
 initAlerts();
+initRest();
 initRecords();
 initEyes();
 initKeys();
+// the carer touching the screen counts as activity too
+for (const type of ["pointerdown", "keydown"]) document.addEventListener(type, () => markActive());
 initCarer(); // last: it reads the state the other modules just set up
 
 // Space acts as a manual "blink": lets a carer or tester drive the board without the camera

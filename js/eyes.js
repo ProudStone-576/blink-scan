@@ -5,6 +5,7 @@ import { beep, ensureAudio, speakCue } from "./audio.js";
 import { activate, advanceScan, commitCount, cooling, goBack, showHold, touchScan } from "./board.js";
 import { calibrator } from "./calibration-ui.js";
 import { logEvent } from "./records.js";
+import { checkIdle, commitRest, isResting } from "./rest.js";
 import { hooks, runtime, settings } from "./state.js";
 
 const video = $("cam");
@@ -64,7 +65,11 @@ async function startCamera() {
 
 function tick(now) {
   requestAnimationFrame(tick);
-  if (closedSince === null) commitCount(now);
+  checkIdle(now);
+  if (closedSince === null) {
+    commitCount(now);
+    commitRest(now);
+  }
   if (!runtime.landmarker || video.readyState < 2) {
     advanceScan(now);
     return;
@@ -112,6 +117,7 @@ function holdingEyesShut(now) {
     backCued = false;
     alarmFired = false;
   }
+  if (isResting()) return; // eyes may stay shut for minutes; only blink counts mean anything now
   if (!alarmFired && !alarmOn() && now - closedSince >= settings.alarmHold) {
     alarmFired = true;
     startAlarm("eye hold");
@@ -129,6 +135,10 @@ function eyesOpened(now) {
   closedSince = null;
   showHold(0);
   touchScan(now);
+  if (isResting()) {
+    if (held >= settings.min && held < settings.backHold) activate(now);
+    return;
+  }
   if (alarmFired) {
     alarmFired = false; // this hold started the alarm; opening the eyes must not also dismiss it
     return;
@@ -164,6 +174,11 @@ function trackFace(seen, now) {
       runtime.faceNow = true;
       hooks.faceChanged();
     }
+    return;
+  }
+  if (isResting()) {
+    noFaceSince = null; // a patient lying back out of view is not a camera fault
+    faceLost = false;
     return;
   }
   noFaceSince ??= now;

@@ -16,10 +16,21 @@ const BASE = (
   "coffee juice medicine pill hospital home going gone should must might shall let am is are was were been being did does done"
 ).split(" ");
 
-const STARTERS = ["i", "please", "thank", "yes"];
+// Punjabi written in English letters, the way the family types it (with a few English words mixed in, as people do)
+const PA_BASE = (
+  "mainu tainu main tu tusi assi eh oh ki kive kiddan kithe kado kyon kaun haan ji nahin theek changa bura bahut thoda hor hun fer " +
+  "ajj kal savere shaam raat roti paani chah dudh dawai dard bukhar thakaan neend ghar parivar putt puttar dhee beta beti veer bhen " +
+  "mummy papa nani dadi massi chacha bhua mama jaana aana karna dena lena dekhna sunna bolna khaana peena sona baithna chahida " +
+  "chahidi hai si hove ho rahi rahe gaya gayi aaya aayi das dass kujh kuch sab kise kisne mere tere sade tuhade naal ton nu ch vich " +
+  "te par ruko chalo zara jaldi haule nede door shukriya meharbani maaf sat sri akal rabba haye sachi pata pyar khushi udaas dukh " +
+  "gussa darr chinta rab washroom madad sehmat gal navi"
+).split(" ");
 
-const baseRank = new Map(BASE.map((word, i) => [word, i]));
-const rank = (word) => baseRank.get(word) ?? 9999;
+const STARTERS = { en: ["i", "please", "thank", "yes"], pa: ["mainu", "haan", "nahin", "puttar"] };
+
+const rankMap = (words) => new Map(words.map((word, i) => [word, i]));
+const RANKS = { en: rankMap(BASE), pa: rankMap([...PA_BASE, ...BASE]) };
+const POOLS = { en: BASE, pa: [...PA_BASE, ...BASE] };
 
 let learned = load();
 
@@ -31,17 +42,19 @@ function load() {
   }
 }
 
-export function predict(prefix, count = 4) {
+// `lang` is "en" or "pa"; Punjabi mode ranks Punjabi words first and still offers English ones
+export function predict(prefix, count = 4, lang = "en") {
   const p = prefix.toLowerCase();
   if (!p) {
     const top = Object.entries(learned)
       .sort((a, b) => b[1] - a[1])
       .slice(0, count)
       .map(([word]) => word);
-    for (const word of STARTERS) if (top.length < count && !top.includes(word)) top.push(word);
+    for (const word of STARTERS[lang]) if (top.length < count && !top.includes(word)) top.push(word);
     return top;
   }
-  const pool = new Set([...BASE, ...Object.keys(learned)]);
+  const rank = (word) => RANKS[lang].get(word) ?? 9999;
+  const pool = new Set([...POOLS[lang], ...Object.keys(learned)]);
   return [...pool]
     .filter((word) => word.startsWith(p) && word !== p)
     .sort((a, b) => (learned[b] ?? 0) - (learned[a] ?? 0) || rank(a) - rank(b) || a.length - b.length)

@@ -10,24 +10,17 @@ const chunk = (items, size) => {
   return rows;
 };
 
-const STATIC = {
-  home: {
-    scan: "flat",
-    cols: 3,
-    items: [
-      { icon: "keyboard", label: "Type", go: "type" },
-      { icon: "chat", label: "Chat", go: "chat" },
-      { icon: "bolt", label: "Quick", go: "quick" },
-      { icon: "drop", label: "Needs", go: "needs" },
-      { icon: "star", label: "Saved", go: "saved" },
-      { icon: "bell", label: "Alarm", run: (ctx) => ctx.alert() },
-    ],
-  },
-  chat: {
-    scan: "rows",
-    cols: 4,
-    phoneCols: 2,
-    items: [
+// rows of the given sizes, for screens whose rows differ in length
+const splitBy = (items, sizes) => {
+  let start = 0;
+  return sizes.map((size) => items.slice(start, (start += size)));
+};
+
+// Punjabi is written in English letters, the way the family writes it. Spellings are a best guess:
+// edit them to match how your family spells them. The speaker is a woman, so verbs agree with that.
+const PHRASES = {
+  en: {
+    chat: [
       say("Really?"),
       say("No way!"),
       say("Haha", "Ha ha ha!"),
@@ -43,14 +36,8 @@ const STATIC = {
       say("Don't tell", "Don't tell anyone I said this."),
       say("Come closer", "Come closer, I have something to say."),
       say("Thank you", "Thank you."),
-      back,
     ],
-  },
-  quick: {
-    scan: "rows",
-    cols: 4,
-    phoneCols: 2,
-    items: [
+    quick: [
       say("Yes", "Yes."),
       say("No", "No."),
       say("Maybe", "Maybe."),
@@ -62,14 +49,8 @@ const STATIC = {
       say("Hello", "Hello!"),
       say("Love you", "I love you."),
       say("Later", "Let's talk later."),
-      back,
     ],
-  },
-  needs: {
-    scan: "rows",
-    cols: 4,
-    phoneCols: 2,
-    items: [
+    needs: [
       say("Water", "I need some water."),
       say("Toilet", "I need the toilet."),
       say("Hungry", "I am hungry."),
@@ -81,10 +62,71 @@ const STATIC = {
       say("Breathing", "I am having trouble breathing."),
       say("Nurse", "Please call the nurse."),
       say("Help", "I need help now."),
-      back,
+    ],
+  },
+  pa: {
+    chat: [
+      say("Sachi?", "Sachi?"),
+      say("Haye rabba!", "Haye rabba!"),
+      say("Haha", "Ha ha ha!"),
+      say("Hor das", "Hor das."),
+      say("Fer ki hoya?", "Fer ki hoya?"),
+      say("Mainu pata si", "Mainu pata si."),
+      say("Sach ch?", "Sach ch?"),
+      say("Navi gal?", "Hor ki navi gal hai?"),
+      say("Bura hoya", "Haye, bahut bura hoya."),
+      say("Main sehmat", "Main tere naal sehmat haan."),
+      say("Pakka nahin", "Mainu pakka nahin pata."),
+      say("Kisne dasya?", "Tainu eh kisne dasya?"),
+      say("Kise nu na dasi", "Kise nu na dasi ke main eh kiha."),
+      say("Nede aa", "Nede aa, kujh gal karni hai."),
+      say("Shukriya", "Shukriya."),
+    ],
+    quick: [
+      say("Haan ji", "Haan ji."),
+      say("Nahin", "Nahin."),
+      say("Shayad", "Shayad."),
+      say("Ruko", "Ruko zara."),
+      say("Theek hai", "Theek hai."),
+      say("Meharbani", "Meharbani karke."),
+      say("Maaf karna", "Maaf karna."),
+      say("Sat sri akal", "Sat sri akal ji."),
+      say("Pyar", "Main tainu bahut pyar kardi haan."),
+      say("Baad ch", "Baad ch gal karaange."),
+      say("Shukriya", "Shukriya ji."),
+    ],
+    needs: [
+      say("Paani", "Mainu paani chahida hai."),
+      say("Washroom", "Mainu washroom jaana hai."),
+      say("Bhukh", "Mainu bhukh lagi hai."),
+      say("Dard", "Mainu dard ho rahi hai."),
+      say("Garmi", "Mainu bahut garmi lag rahi hai."),
+      say("Thand", "Mainu thand lag rahi hai."),
+      say("Thakaan", "Main thak gayi haan, aaram karna hai."),
+      say("Position", "Meri position badal deo."),
+      say("Saah", "Mainu saah lain ch mushkil ho rahi hai."),
+      say("Nurse", "Nurse nu bulao."),
+      say("Madad", "Mainu hune madad chahidi hai."),
     ],
   },
 };
+
+const LAYOUT = { chat: { cols: 4, phoneCols: 2 }, quick: { cols: 4, phoneCols: 2 }, needs: { cols: 4, phoneCols: 2 } };
+
+function homeScreen(ctx) {
+  const punjabi = ctx.language() === "pa";
+  const items = [
+    { icon: "keyboard", label: "Type", go: "type" },
+    { icon: "chat", label: "Chat", go: "chat" },
+    { icon: "bolt", label: "Quick", go: "quick" },
+    { icon: "drop", label: "Needs", go: "needs" },
+    { icon: "star", label: "Saved", go: "saved" },
+    { icon: "globe", label: punjabi ? "English" : "Punjabi", run: (c) => c.toggleLanguage() },
+    { icon: "moon", label: "Rest", run: (c) => c.rest() },
+    { icon: "bell", label: "Alarm", run: (c) => c.alert() },
+  ];
+  return { scan: "flat", rows: splitBy(items, [3, 3, 2]) };
+}
 
 const LETTER_ROWS = ["etaoin", "srhldc", "umfpgw", "ybvkxj"];
 const PUNCTUATION = ["q", "z", ".", ",", "?", "!", "'"];
@@ -98,13 +140,14 @@ function keyboardScreen(ctx) {
   const key = (ch) => ({ label: ch.toUpperCase(), run: () => ctx.type(ch), key: true });
   const action = (label, icon, run) => ({ label, icon, run, key: true });
   const word = (w) => ({ label: w, run: () => ctx.pickWord(w), key: true });
+  const suggest = (count) => predict(ctx.currentWord(), count, ctx.language()).map(word);
 
   if (ctx.countMode()) {
     return {
       scan: "rows",
       pick: "count",
       rows: [
-        [...predict(ctx.currentWord(), 3).map(word), action("Space", "space", () => ctx.space()), action("Delete", "backspace", () => ctx.backspace())],
+        [...suggest(3), action("Space", "space", () => ctx.space()), action("Delete", "backspace", () => ctx.backspace())],
         ...COUNT_ROWS.map((letters) => [...letters].map(key)),
         COUNT_PUNCTUATION.map(key),
         [
@@ -119,7 +162,7 @@ function keyboardScreen(ctx) {
   return {
     scan: "rows",
     rows: [
-      predict(ctx.currentWord()).map(word),
+      suggest(4),
       ...LETTER_ROWS.map((letters) => [...letters].map(key)),
       PUNCTUATION.map(key),
       [
@@ -142,8 +185,9 @@ function savedScreen(ctx) {
 }
 
 export function getScreen(id, ctx) {
+  if (id === "home") return homeScreen(ctx);
   if (id === "type") return keyboardScreen(ctx);
   if (id === "saved") return savedScreen(ctx);
-  const { scan, cols, phoneCols, items } = STATIC[id];
-  return { scan, cols, phoneCols, rows: chunk(items, cols) };
+  const { cols, phoneCols } = LAYOUT[id];
+  return { scan: "rows", cols, phoneCols, rows: chunk([...PHRASES[ctx.language()][id], back], cols) };
 }

@@ -16,6 +16,7 @@ export const runtime = {
   audioCtx: null,
   voiceHeard: false,
   faceNow: false,
+  resting: false,
 };
 
 // Modules that would import each other call through these instead. main.js fills them in.
@@ -29,4 +30,5 @@ export const hooks = {
   settingsChanged: () => {},
   resetClosure: () => {},
   scanClock: () => {},
+  endRest: () => {},
 };

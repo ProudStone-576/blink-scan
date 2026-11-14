@@ -109,6 +109,7 @@ body {
 /* ---- patient board ---- */
 
 main {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -225,6 +226,8 @@ main {
 #grid.compact .row { gap: var(--space-xs); padding: var(--space-3xs); }
 #grid.compact .choice { flex-direction: row; gap: var(--space-xs); border-width: 3px; border-radius: var(--radius-input); }
 #grid.compact .choice .icon { width: 1em; height: 1em; }
+/* off Home, an icon sits beside its label so a short row never clips the word */
+#grid:not([data-screen="home"]) .choice.with-icon { flex-direction: row; }
 #grid.numbered .row { padding-left: 3rem; }
 
 .badge {
@@ -346,6 +349,29 @@ td { padding: var(--space-xs) var(--space-sm); border-bottom: var(--rule-hair) s
 td:first-child { width: 11rem; font: 400 var(--text-sm) var(--font-outlier); font-variant-numeric: tabular-nums; white-space: nowrap; }
 #events-empty { color: var(--color-muted); }
 
+/* ---- rest ---- */
+
+#rest {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  padding: var(--space-lg);
+  background: var(--color-ink);
+  color: var(--color-paper);
+  border-radius: var(--radius-card);
+}
+
+.rest-card { display: flex; flex-direction: column; align-items: center; gap: var(--space-md); text-align: center; }
+.rest-icon { width: 5rem; height: 5rem; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+#rest h1 { max-width: none; font-size: 3rem; }
+#rest p { max-width: none; font-size: var(--text-xl); }
+#rest .rest-since { color: var(--color-accent-soft); font: 400 var(--text-md) var(--font-outlier); font-variant-numeric: tabular-nums; }
+.rest-how { margin: 0; padding: 0; list-style: none; font-size: var(--text-lg); color: var(--color-accent-soft); }
+.rest-how li + li { margin-top: var(--space-2xs); }
+#rest-count { min-height: 1.5em; font-size: var(--text-lg); }
+
 /* ---- alarm ---- */
 
 #alarm {
@@ -446,7 +472,7 @@ td:first-child { width: 11rem; font: 400 var(--text-sm) var(--font-outlier); fon
   .readiness .icon { width: 16px; height: 16px; }
   .meter { width: 80px; }
   .actions { grid-area: actions; margin-left: 0; }
-  .actions .btn { flex: 1; }
+  .actions .btn { flex: 1; padding: 0 var(--space-xs); font-size: var(--text-sm); white-space: nowrap; }
 
   main { padding: var(--space-xs) var(--space-sm); gap: var(--space-xs); }
   #message { min-height: 2.2rem; font-size: var(--text-xl); }

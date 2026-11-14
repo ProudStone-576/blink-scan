@@ -24,6 +24,9 @@ export function syncSettings() {
     $(outId).textContent = fmt(Number(settings[key]));
   }
   $("rowSelect").value = settings.rowSelect;
+  $("autoRest").value = String(settings.autoRestMin);
+  $("language").value = settings.language;
+  $("voiceAccent").value = settings.voiceAccent;
   $("mirror").checked = settings.mirror;
   $("speak").checked = settings.speak;
   video.classList.toggle("hidden", !settings.mirror);
@@ -46,15 +49,28 @@ export function initSettings() {
       save();
     });
   }
+  $("language").addEventListener("change", (e) => {
+    settings.language = e.target.value;
+    save();
+    openScreen(currentScreenId());
+  });
+  $("voiceAccent").addEventListener("change", (e) => {
+    settings.voiceAccent = e.target.value;
+    save();
+  });
+  $("autoRest").addEventListener("change", (e) => {
+    settings.autoRestMin = Number(e.target.value);
+    save();
+  });
   $("rowSelect").addEventListener("change", (e) => {
     settings.rowSelect = e.target.value;
     save();
     if (currentScreenId() === "type") openScreen("type");
   });
   $("reset").addEventListener("click", () => {
-    // the phone alert setup is the carer's safety net: resetting the blink settings must not switch it off
-    const { notifyOn, notifyTopic, notifyServer } = settings;
-    Object.assign(settings, DEFAULTS, { notifyOn, notifyTopic, notifyServer });
+    // the phone alert setup and the phrase language are not blink tuning: resetting must not undo them
+    const { notifyOn, notifyTopic, notifyServer, language } = settings;
+    Object.assign(settings, DEFAULTS, { notifyOn, notifyTopic, notifyServer, language });
     syncSettings();
     save();
   });

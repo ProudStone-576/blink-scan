@@ -2,8 +2,9 @@ import { COOLDOWN_MS, COUNT_COOLDOWN_MS, ITEM_PASSES, KEYS, LOG_LINES } from "./
 import { $, iconEl } from "./dom.js";
 import { alarmOn, startAlarm, stopAlarm } from "./alarm.js";
 import { beep, speakCue } from "./audio.js";
+import { cancelRestWarning, isResting, markActive, restBlink, startRest } from "./rest.js";
 import { getScreen } from "./screens.js";
-import { settings, store } from "./state.js";
+import { hooks, settings, store } from "./state.js";
 import { writeJson } from "./storage.js";
 import { learn } from "./words.js";
 
@@ -57,6 +58,14 @@ const ctx = {
   savedPhrases: () => store.savedPhrases,
   go: (id) => openScreen(id),
   alert: () => startAlarm("Alarm tile"),
+  rest: () => startRest("patient"),
+  language: () => settings.language,
+  toggleLanguage() {
+    settings.language = settings.language === "pa" ? "en" : "pa";
+    writeJson(KEYS.settings, settings);
+    hooks.settingsChanged();
+    lastSpoken = settings.language === "pa" ? "Punjabi phrases are on" : "English phrases are on";
+  },
 };
 
 export function initBoard() {
@@ -88,6 +97,8 @@ export function openScreen(id) {
 
 // one step up: letter scan -> row choice -> home
 export function goBack(now) {
+  if (isResting()) return;
+  markActive(now);
   cooldownUntil = now + COOLDOWN_MS;
   lastStepAt = now;
   if (alarmOn()) {
@@ -146,7 +157,7 @@ function currentItem() {
 }
 
 export function advanceScan(now) {
-  if (alarmOn() || isCounting() || now < cooldownUntil || now - lastStepAt < settings.step) return;
+  if (alarmOn() || isResting() || isCounting() || now < cooldownUntil || now - lastStepAt < settings.step) return;
   lastStepAt = now;
   const { rows } = scan.screen;
   if (scan.screen.scan === "flat") {
@@ -165,7 +176,12 @@ export function advanceScan(now) {
 
 // a blink (or Space): counts toward a row, picks a row, or picks the lit item
 export function activate(now) {
-  if (alarmOn()) return;
+  if (alarmOn() || cancelRestWarning(now)) return;
+  markActive(now);
+  if (isResting()) {
+    restBlink(now);
+    return;
+  }
   if (isCounting()) {
     countBlink(now);
     return;
@@ -199,6 +215,7 @@ function renderScreen() {
   grid.replaceChildren();
   grid.classList.toggle("compact", rows.length > 4);
   grid.classList.toggle("numbered", scan.screen.pick === "count");
+  grid.dataset.screen = scan.screenId;
   dom = rows.map((items, rowIndex) => {
     const rowEl = document.createElement("div");
     rowEl.className = "row";

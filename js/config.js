@@ -10,6 +10,9 @@ export const DEFAULTS = {
   countWindow: 1500,
   backHold: 2000,
   alarmHold: 4000,
+  autoRestMin: 10,
+  language: "en", // "en" or "pa": Punjabi written in English letters
+  voiceAccent: "auto",
   rowSelect: "count",
   mirror: true,
   speak: true,
