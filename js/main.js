@@ -1,4 +1,5 @@
 import { initAlarm } from "./alarm.js";
+import { initAlerts } from "./alerts-ui.js";
 import { activate, announce, goBack, initBoard, touchScan } from "./board.js";
 import { calibrator, initCalibration } from "./calibration-ui.js";
 import { closeCarer, initCarer, openCarer, panelOpen, renderReadiness, renderSetup } from "./carer.js";
@@ -30,6 +31,7 @@ initSettings();
 initBoard();
 initCalibration();
 initAlarm();
+initAlerts();
 initRecords();
 initEyes();
 initKeys();

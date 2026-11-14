@@ -52,7 +52,9 @@ export function initSettings() {
     if (currentScreenId() === "type") openScreen("type");
   });
   $("reset").addEventListener("click", () => {
-    Object.assign(settings, DEFAULTS);
+    // the phone alert setup is the carer's safety net: resetting the blink settings must not switch it off
+    const { notifyOn, notifyTopic, notifyServer } = settings;
+    Object.assign(settings, DEFAULTS, { notifyOn, notifyTopic, notifyServer });
     syncSettings();
     save();
   });

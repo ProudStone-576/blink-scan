@@ -24,6 +24,8 @@ js/
   screens.js          the screens: home, chat, quick, needs, saved, keyboard layouts
   words.js            word prediction that learns from what is typed
   alarm.js            siren, speech, start and stop
+  notify.js           push alert to the carer's phone through ntfy (raise, remind, stop, retry)
+  alerts-ui.js        the Phone alert tab: topic, server, test
   calibrate.js        calibration state machine (open, closed, three blinks)
   calibration-ui.js   calibration overlay and wiring
   carer.js            carer panel: tabs, setup check, status chips
@@ -42,6 +44,10 @@ Modules that would import each other call through `hooks` in `state.js`, which `
 | 4 s | raise the alarm |
 
 Space is a manual blink and Escape goes back, for testing without the camera.
+
+## Phone alert
+
+When the alarm is raised, the app posts a short message to an [ntfy](https://ntfy.sh) topic, and the carer's phone (with the free ntfy app subscribed to that topic) gets an urgent notification. It repeats every minute until the alarm is stopped, retries if the connection fails, and sends a quiet message when the alarm stops. The message holds only the title, the time and a link back to the app. Set it up in the carer panel under Phone alert. The topic is the only secret, so keep it private; a self-hosted ntfy server can be used instead of ntfy.sh.
 
 ## Not a certified medical device
 

@@ -317,7 +317,7 @@ fieldset label:not(.check) { display: grid; gap: var(--space-2xs); padding: var(
 output { color: var(--color-accent-deep); font-family: var(--font-outlier); font-variant-numeric: tabular-nums; margin-left: var(--space-xs); }
 input[type="range"] { width: 100%; min-height: var(--hit); accent-color: var(--color-accent); }
 
-select, textarea {
+select, textarea, input[type="text"], input[type="url"] {
   width: 100%;
   min-height: var(--hit);
   padding: var(--space-xs) var(--space-sm);
@@ -327,6 +327,12 @@ select, textarea {
   color: var(--color-ink);
 }
 
+.inline { display: flex; gap: var(--space-xs); }
+.inline input { flex: 1; min-width: 0; }
+.fine { color: var(--color-muted); font-size: var(--text-sm); }
+.how { margin: 0; padding-left: var(--space-lg); color: var(--color-ink-2); }
+#notify-status { min-height: 1.5em; color: var(--color-ink-2); }
+.alarm-notify { min-height: 1.5em; font-size: var(--text-lg); }
 label.wide { display: grid; gap: var(--space-xs); font-weight: 500; }
 
 .records-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-sm); }

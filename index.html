@@ -66,6 +66,7 @@
     <button role="tab" id="tab-setup" aria-controls="panel-setup" type="button">Setup check</button>
     <button role="tab" id="tab-settings" aria-controls="panel-settings" type="button">Settings</button>
     <button role="tab" id="tab-phrases" aria-controls="panel-phrases" type="button">Phrases</button>
+    <button role="tab" id="tab-alerts" aria-controls="panel-alerts" type="button">Phone alert</button>
     <button role="tab" id="tab-records" aria-controls="panel-records" type="button">Safety and records</button>
   </div>
 
@@ -154,6 +155,31 @@
     <button id="clear-log" class="btn" type="button">Clear conversation</button>
   </section>
 
+  <section id="panel-alerts" role="tabpanel" aria-labelledby="tab-alerts">
+    <p class="lead">When the alarm is raised, send a push notification to the carer’s phone, so the alarm still reaches them in another room.</p>
+    <label class="check"><input id="notify-on" type="checkbox"> Send a phone alert when the alarm is raised</label>
+    <label class="wide">Alert topic
+      <span class="inline">
+        <input id="notify-topic" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button id="notify-generate" class="btn" type="button">Make a topic</button>
+      </span>
+    </label>
+    <p class="fine">Anyone who knows the topic can read the alerts. Use a long random topic and keep it private.</p>
+    <ol class="how">
+      <li>Install the free ntfy app on the carer’s phone.</li>
+      <li>In the app, subscribe to the topic above on the server below.</li>
+      <li>Send a test alert and check that it arrives.</li>
+    </ol>
+    <label class="wide">Server
+      <input id="notify-server" type="url" autocomplete="off" spellcheck="false">
+    </label>
+    <div class="step-actions">
+      <button id="notify-test" class="btn" type="button">Send test alert</button>
+      <button id="notify-copy" class="btn" type="button">Copy subscribe link</button>
+    </div>
+    <p id="notify-status" role="status"></p>
+  </section>
+
   <section id="panel-records" role="tabpanel" aria-labelledby="tab-records">
     <div class="notice-block">
       <h3>Intended use</h3>
@@ -161,7 +187,7 @@
       <h3>Limits</h3>
       <p>It is not a certified medical device and not an emergency call system. Keep another way to call for help. Glasses glare, low light and eyelid conditions change how well blinks are read, so calibrate again when the position or the light changes.</p>
       <h3>Privacy</h3>
-      <p>The camera image is read on this device only. Nothing is recorded or sent. Phrases, settings and the records below stay in this browser.</p>
+      <p>The camera image is read on this device only and is never recorded or sent. Phrases, settings and the records below stay in this browser. If phone alerts are on, raising the alarm sends a short message, such as “Help needed” and the time, to the alert server you chose. It never contains camera images or typed text.</p>
     </div>
     <div class="records-head">
       <h3>Event record</h3>
@@ -183,6 +209,7 @@
     <svg class="alarm-icon" aria-hidden="true"><use href="#i-bell"/></svg>
     <h1 id="alarm-title">Help needed</h1>
     <p id="alarm-detail">The patient is calling for help.</p>
+    <p id="alarm-notify" class="alarm-notify" role="status"></p>
     <button id="alarm-stop" type="button">Stop the alarm</button>
   </div>
 </div>

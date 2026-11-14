@@ -14,6 +14,9 @@ export const DEFAULTS = {
   mirror: true,
   speak: true,
   calibratedAt: null,
+  notifyOn: false,
+  notifyTopic: "",
+  notifyServer: "https://ntfy.sh",
 };
 
 export const KEYS = {
@@ -36,4 +39,4 @@ export const FACE_CHIME_EVERY_MS = 20000;
 export const ALARM_TEST_MS = 4000;
 
 export const SETUP_STEPS = 6;
-export const TABS = ["setup", "settings", "phrases", "records"];
+export const TABS = ["setup", "settings", "phrases", "alerts", "records"];

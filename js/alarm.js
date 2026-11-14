@@ -1,6 +1,7 @@
 import { ALARM_TEST_MS } from "./config.js";
 import { $, timeNow } from "./dom.js";
 import { beep, ensureAudio, speakCue } from "./audio.js";
+import { notifyRaised, notifyStopped } from "./notify.js";
 import { logEvent } from "./records.js";
 import { hooks, settings } from "./state.js";
 
@@ -21,6 +22,7 @@ export function startAlarm(source, test = false) {
   $("alarm-detail").textContent = test ? "This is a test. Nothing is wrong." : `The patient called for help at ${timeNow()}.`;
   $("alarm").hidden = false;
   logEvent(test ? "Alarm test started" : `Alarm raised (${source})`);
+  notifyRaised(test);
   let pulses = 0;
   const pulse = () => {
     beep(pulses % 2 ? 720 : 960, 0.4, 0.6);
@@ -45,6 +47,7 @@ export function stopAlarm(how) {
   wakeLock = null;
   hooks.scanClock();
   logEvent(isTest ? "Alarm test ended" : `Alarm stopped (${how})`);
+  notifyStopped(isTest, how);
   if (isTest) hooks.openPanel("setup");
 }
 
