@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Blink Scan, communication by eye blink</title>
+<meta name="description" content="A communication aid for people who cannot speak or type: choose words, phrases and an alarm with deliberate eye blinks, read by the device camera.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@700&family=Instrument+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-keyboard" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 5 14h6l-1 8 8-12h-6z"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3c3 4 6 7 6 11a6 6 0 0 1-12 0c0-4 3-7 6-11z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.6 6 6.4.6-4.8 4.3 1.4 6.4L12 17l-5.6 3.3 1.4-6.4L3 9.6 9.4 9z"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="m10 6-6 6 6 6M4 12h16"/></symbol>
+  <symbol id="i-space" viewBox="0 0 24 24"><path d="M4 10v5h16v-5"/></symbol>
+  <symbol id="i-backspace" viewBox="0 0 24 24"><path d="M9 5h11v14H9l-6-7zM12 9l5 6M17 9l-5 6"/></symbol>
+  <symbol id="i-speaker" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4zM16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M3 8h4l2-3h6l2 3h4v11H3z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3 22 21H2zM12 10v5M12 18h.01"/></symbol>
+</svg>
+
+<header class="topbar">
+  <p class="brand">Blink Scan</p>
+  <div class="status-group">
+    <ul class="readiness" aria-label="System status">
+      <li id="chip-camera"><svg class="icon" aria-hidden="true"><use href="#i-camera"/></svg><span id="status">Camera off</span></li>
+      <li id="chip-voice"><svg class="icon" aria-hidden="true"><use href="#i-speaker"/></svg><span id="voice-state">Voice not tested</span></li>
+      <li id="chip-calibration"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span id="calibration-state">Not calibrated</span></li>
+    </ul>
+    <div class="meter" role="img" aria-label="Eye closure level"><div id="meter-fill"></div><div id="meter-threshold"></div></div>
+  </div>
+  <div class="actions">
+    <button id="start" class="btn btn-primary" type="button">Start camera</button>
+    <button id="calibrate" class="btn" type="button" hidden>Calibrate</button>
+    <button id="open-carer" class="btn" type="button" aria-haspopup="dialog">Carer panel</button>
+  </div>
+  <button id="alarm-btn" class="btn btn-alarm" type="button"><svg class="icon" aria-hidden="true"><use href="#i-bell"/></svg>Alarm</button>
+</header>
+
+<main>
+  <div id="notice" class="notice" role="status" hidden></div>
+  <p id="message" aria-live="assertive">Start the camera, then blink slowly to choose.</p>
+  <p id="hint"></p>
+  <div id="log" aria-label="Conversation so far"></div>
+  <div id="grid" role="listbox" aria-label="Choices"></div>
+</main>
+
+<dialog id="carer" aria-labelledby="carer-title">
+  <header class="carer-head">
+    <h2 id="carer-title">Carer panel</h2>
+    <button id="close-carer" class="btn" type="button">Close</button>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Carer panel sections">
+    <button role="tab" id="tab-setup" aria-controls="panel-setup" type="button">Setup check</button>
+    <button role="tab" id="tab-settings" aria-controls="panel-settings" type="button">Settings</button>
+    <button role="tab" id="tab-phrases" aria-controls="panel-phrases" type="button">Phrases</button>
+    <button role="tab" id="tab-records" aria-controls="panel-records" type="button">Safety and records</button>
+  </div>
+
+  <section id="panel-setup" role="tabpanel" aria-labelledby="tab-setup">
+    <p id="setup-summary" class="lead"></p>
+    <ol class="steps">
+      <li id="step-notice">
+        <div><h3>Read the safety notice</h3><p>Intended use, limits and privacy are under Safety and records.</p></div>
+        <label class="check"><input id="accept-notice" type="checkbox"> I have read it</label>
+      </li>
+      <li id="step-position">
+        <div><h3>Position the camera</h3><p>Camera 40 to 70 cm from the face, at eye height, with light on the face and not behind it.</p></div>
+        <p id="face-state" class="state">Camera off</p>
+      </li>
+      <li id="step-camera">
+        <div><h3>Start the camera</h3><p>Allow camera access when the browser asks.</p></div>
+        <p id="camera-state" class="state">Not started</p>
+      </li>
+      <li id="step-calibrate">
+        <div><h3>Calibrate to this patient</h3><p>Takes about 30 seconds. Repeat when the position or the light changes.</p></div>
+        <p id="calibrate-state" class="state">Not done</p>
+      </li>
+      <li id="step-voice">
+        <div><h3>Check voice and volume</h3><p>Press the button and confirm you can hear it from where the carer sits.</p></div>
+        <div class="step-actions">
+          <button id="test-voice" class="btn" type="button">Test voice</button>
+          <label class="check"><input id="confirm-voice" type="checkbox"> I heard it</label>
+        </div>
+      </li>
+      <li id="step-alarm">
+        <div><h3>Test the alarm</h3><p>Sounds a short test alarm. Confirm it is loud enough to reach the carer.</p></div>
+        <div class="step-actions">
+          <button id="test-alarm" class="btn" type="button">Test alarm</button>
+          <label class="check"><input id="confirm-alarm" type="checkbox"> I heard it</label>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section id="panel-settings" role="tabpanel" aria-labelledby="tab-settings">
+    <fieldset>
+      <legend>Blinking</legend>
+      <label>Blink length <output id="out-min"></output>
+        <input id="min" type="range" min="100" max="1200" step="50">
+      </label>
+      <label>Closed threshold <output id="out-thr"></output>
+        <input id="thr" type="range" min="0.2" max="0.9" step="0.05">
+      </label>
+      <label>Hold eyes shut to go back <output id="out-back"></output>
+        <input id="backHold" type="range" min="1200" max="4000" step="100">
+      </label>
+      <label>Hold eyes shut for the alarm <output id="out-alarm"></output>
+        <input id="alarmHold" type="range" min="3000" max="8000" step="500">
+      </label>
+    </fieldset>
+    <fieldset>
+      <legend>Scanning</legend>
+      <label>Scan step <output id="out-step"></output>
+        <input id="step" type="range" min="600" max="4000" step="100">
+      </label>
+      <label>Keyboard row choice
+        <select id="rowSelect">
+          <option value="count">Count blinks (1 blink = row 1)</option>
+          <option value="scan">Scan rows automatically</option>
+        </select>
+      </label>
+      <label>Pause that ends counting <output id="out-count"></output>
+        <input id="countWindow" type="range" min="800" max="3000" step="100">
+      </label>
+    </fieldset>
+    <fieldset>
+      <legend>Voice and display</legend>
+      <label>Speech speed <output id="out-rate"></output>
+        <input id="rate" type="range" min="0.6" max="1.4" step="0.1">
+      </label>
+      <label class="check"><input id="speak" type="checkbox" checked> Speak each choice aloud</label>
+      <label class="check"><input id="mirror" type="checkbox" checked> Show the camera preview</label>
+    </fieldset>
+    <button id="reset" class="btn" type="button">Reset to defaults</button>
+  </section>
+
+  <section id="panel-phrases" role="tabpanel" aria-labelledby="tab-phrases">
+    <label class="wide">Saved phrases, one per line
+      <textarea id="saved-text" rows="8"></textarea>
+    </label>
+    <button id="clear-log" class="btn" type="button">Clear conversation</button>
+  </section>
+
+  <section id="panel-records" role="tabpanel" aria-labelledby="tab-records">
+    <div class="notice-block">
+      <h3>Intended use</h3>
+      <p>Blink Scan lets a person who cannot speak or type choose words and phrases with deliberate eye blinks. A carer sets it up and stays within hearing.</p>
+      <h3>Limits</h3>
+      <p>It is not a certified medical device and not an emergency call system. Keep another way to call for help. Glasses glare, low light and eyelid conditions change how well blinks are read, so calibrate again when the position or the light changes.</p>
+      <h3>Privacy</h3>
+      <p>The camera image is read on this device only. Nothing is recorded or sent. Phrases, settings and the records below stay in this browser.</p>
+    </div>
+    <div class="records-head">
+      <h3>Event record</h3>
+      <div class="step-actions">
+        <button id="copy-events" class="btn" type="button">Copy record</button>
+        <button id="clear-events" class="btn" type="button">Clear record</button>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th scope="col">Time</th><th scope="col">Event</th></tr></thead>
+      <tbody id="events"></tbody>
+    </table>
+    <p id="events-empty">No events yet. Alarms, calibration and camera faults are recorded here.</p>
+  </section>
+</dialog>
+
+<div id="alarm" role="alertdialog" aria-labelledby="alarm-title" aria-describedby="alarm-detail" hidden>
+  <div class="alarm-card">
+    <svg class="alarm-icon" aria-hidden="true"><use href="#i-bell"/></svg>
+    <h1 id="alarm-title">Help needed</h1>
+    <p id="alarm-detail">The patient is calling for help.</p>
+    <button id="alarm-stop" type="button">Stop the alarm</button>
+  </div>
+</div>
+
+<div id="wizard" role="dialog" aria-modal="true" aria-labelledby="wizard-title" hidden>
+  <div class="wizard-card">
+    <h2 id="wizard-title">Calibration</h2>
+    <p id="wizard-step"></p>
+    <div class="progress"><div id="wizard-bar"></div></div>
+    <p id="wizard-note" class="note"></p>
+    <div class="wizard-actions">
+      <button id="wizard-cancel" class="btn" type="button">Cancel</button>
+      <button id="wizard-close" class="btn btn-primary" type="button" hidden>Done</button>
+    </div>
+  </div>
+</div>
+
+<video id="cam" playsinline muted hidden poster="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></video>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
